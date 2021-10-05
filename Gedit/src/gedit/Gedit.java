@@ -1,46 +1,47 @@
 package gedit;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.StackPane;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class Gedit extends Application {
-    
+
+    private final BorderPane root = new BorderPane();
+    private final Canvas canvas = new Canvas(1600, 900);
+    private final GraphicsContext gc = canvas.getGraphicsContext2D();
+
     @Override
     public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("funguješ?");
-            }
-        });
-        
-        vypis();
-        StackPane root = new StackPane();
-        root.getChildren().add(btn);
-        
-        Scene scene = new Scene(root, 300, 250);
-        
-        primaryStage.setTitle("Hello World!");
+        nastavCanvas();
+        root.setCenter(canvas);
+        Scene scene = new Scene(root);
+        primaryStage.setTitle("G-Edit 3000");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
+
     }
 
-   
-    private void vypis(){
-        System.out.println("Zdar");
+    private void nastavCanvas() {
+        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (event) -> {
+
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (event) -> {
+
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, (event) -> {
+
+        });
+
     }
-    
+
     public static void main(String[] args) {
         launch(args);
     }
-    
+
 }
