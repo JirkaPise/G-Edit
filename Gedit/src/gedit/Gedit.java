@@ -18,7 +18,7 @@ public class Gedit extends Application {
             
             @Override
             public void handle(ActionEvent event) {
-                System.out.println("Grafický editor");
+                System.out.println("funguješ?");
             }
         });
         
