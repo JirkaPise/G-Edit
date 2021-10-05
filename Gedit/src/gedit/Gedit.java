@@ -22,6 +22,7 @@ public class Gedit extends Application {
             }
         });
         
+        vypis();
         StackPane root = new StackPane();
         root.getChildren().add(btn);
         
@@ -33,9 +34,11 @@ public class Gedit extends Application {
         
     }
 
-    /**
-     * @param args the command line arguments
-     */
+   
+    private void vypis(){
+        System.out.println("Zdar");
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }
