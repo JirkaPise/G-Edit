@@ -31,7 +31,6 @@ public class Gedit extends Application {
     Label label = new Label();
     Canvas canvas = null;
     private Color currColor = Color.RED;
-    Button save = new Button("Save");
 
     @Override
     public void start(Stage primaryStage) {
@@ -59,38 +58,11 @@ public class Gedit extends Application {
             }
         });
 
-        save.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                FileChooser fileChooser = new FileChooser();
-
-                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
-                fileChooser.getExtensionFilters().add(extFilter);
-
-                File file = fileChooser.showSaveDialog(primaryStage);
-
-                if (file != null) {
-                    try {
-                        WritableImage writableImage = new WritableImage((int) canvas.getWidth(),(int) canvas.getHeight());
-                        canvas.snapshot(null, writableImage);
-
-                        RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
-                        ImageIO.write(renderedImage, "png", file);
-                    } catch (IOException ex) {
-                        System.out.println("FILE OUTPUT ERROR");
-                    }
-                }
-
-            }
-        });
-
         AnchorPane root = new AnchorPane();
 
-        root.getChildren().addAll(canvas, label, colorPicker, save);
+        root.getChildren().addAll(canvas, label, colorPicker);
         colorPicker.setLayoutX(10);
         colorPicker.setLayoutY(10);
-        save.setLayoutX(400);
-        save.setLayoutY(10);
 
         label.setText("0 : 0");
         label.setLayoutX(150);
