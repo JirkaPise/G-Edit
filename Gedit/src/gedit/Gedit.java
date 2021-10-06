@@ -11,6 +11,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -21,6 +22,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -28,54 +31,42 @@ import javax.imageio.ImageIO;
 
 public class Gedit extends Application {
 
-    Label label = new Label();
     Canvas canvas = null;
+    Point2D lineStart = null;
     private Color currColor = Color.RED;
+    BorderPane root = new BorderPane();
+    HBox hbox = new HBox();
+    ColorPicker colorPicker = new ColorPicker(currColor);
+    GraphicsContext gc ;
 
     @Override
     public void start(Stage primaryStage) {
-        ColorPicker colorPicker = new ColorPicker(currColor);
+
         canvas = new Canvas();
-
-        colorPicker.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                currColor = colorPicker.getValue();
-            }
+        gc = canvas.getGraphicsContext2D();
+        
+        colorPicker.setOnAction((ActionEvent event) -> {
+            currColor = colorPicker.getValue();
         });
 
-        canvas.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
+        canvas.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            draw();
         });
 
-        canvas.heightProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                draw();
-            }
+        canvas.heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            draw();
         });
 
-        AnchorPane root = new AnchorPane();
-
-        root.getChildren().addAll(canvas, label, colorPicker);
-        colorPicker.setLayoutX(10);
-        colorPicker.setLayoutY(10);
-
-        label.setText("0 : 0");
-        label.setLayoutX(150);
-        label.setLayoutY(15);
-        label.setStyle("-fx-border-style: solid;");
-        label.setStyle("-fx-background-color: E8A698;");
+        hbox.getChildren().addAll(colorPicker);
+        root.setCenter(canvas);
+        root.setTop(hbox);
 
         canvas.widthProperty().bind(root.widthProperty());
         canvas.heightProperty().bind(root.heightProperty());
 
         Scene scene = new Scene(root, 600, 400);
 
-        primaryStage.setTitle("Kreslení myší");
+        primaryStage.setTitle("G-Edit 3000");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -85,44 +76,27 @@ public class Gedit extends Application {
     }
 
     private void draw() {
-        if (canvas != null) {
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    gc.setStroke(currColor);
-                    gc.beginPath();
-                    gc.moveTo(event.getX(), event.getY());
-                    gc.getStroke();
-                }
+        if (canvas != null) {    
+            canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent event) -> {
+                gc.setStroke(currColor);
+                lineStart = new Point2D(event.getX(), event.getY());
             });
 
-            canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    gc.setStroke(currColor);
-                    drawText((int) event.getX() + " : " + (int) event.getY(), gc);
-                    gc.lineTo(event.getX(), event.getY());
-                    gc.stroke();
-                }
+            canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent event) -> {
+                gc.strokeLine(lineStart.getX(), lineStart.getY(), event.getX(), event.getY());
+                lineStart = new Point2D(event.getX(), event.getY());
             });
 
-            canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    if (event.getButton() == MouseButton.SECONDARY) {
-                        clearAll(gc);
-                    }
-                }
+            canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
+//                if (event.getButton() == MouseButton.SECONDARY) {
+//                    clearAll(gc);
+//                }
             });
         }
     }
 
-    private void clearAll(GraphicsContext gc) {
+    private void clearAll() {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
-    public void drawText(String souradnice, GraphicsContext gc) {
-        label.setText(souradnice);
-    }
 }
