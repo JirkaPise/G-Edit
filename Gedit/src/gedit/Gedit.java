@@ -29,10 +29,9 @@ public class Gedit extends Application {
     }
 
     private void nastavCanvas() {
-        
-         
+
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (event) -> {
-            start = new Point2D(0, 0);
+            start = new Point2D(event.getX(), event.getY());
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (event) -> {
@@ -40,7 +39,7 @@ public class Gedit extends Application {
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, (event) -> {
-
+            konec = new Point2D(event.getX(), event.getY());
         });
 
     }
