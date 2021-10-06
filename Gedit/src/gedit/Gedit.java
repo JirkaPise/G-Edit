@@ -1,6 +1,7 @@
 package gedit;
 
 import javafx.application.Application;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -13,6 +14,8 @@ public class Gedit extends Application {
     private final BorderPane root = new BorderPane();
     private final Canvas canvas = new Canvas(1600, 900);
     private final GraphicsContext gc = canvas.getGraphicsContext2D();
+    private Point2D start;
+    private Point2D konec;
 
     @Override
     public void start(Stage primaryStage) {
@@ -26,8 +29,10 @@ public class Gedit extends Application {
     }
 
     private void nastavCanvas() {
+        
+         
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (event) -> {
-
+            start = new Point2D(0, 0);
         });
 
         canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (event) -> {
