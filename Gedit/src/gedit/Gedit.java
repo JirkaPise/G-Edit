@@ -22,6 +22,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -81,37 +82,44 @@ public class Gedit extends Application {
         buttonClear.setOnAction((event) -> {
             clearAll();
         });
-        
+
         buttonNacti.setOnAction((event) -> {
+            FileChooser fileChooser = new FileChooser();
+
+            FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png");
+            fileChooser.getExtensionFilters().add(extFilt);
+
+            File file = fileChooser.showOpenDialog(primaryStage);
+            if (file != null) {
+                Image image = new Image(file.getAbsolutePath());
+                gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
+            }
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-        });
-        
-        buttonUloz.setOnAction((event) -> {
-        
         });
 
-        hbox.getChildren().addAll(colorPicker, comboboxNastroje, buttonClear, spinnerSirkaCary);
+        buttonUloz.setOnAction((event) -> {
+            FileChooser fileChooser = new FileChooser();
+
+            FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png");
+            fileChooser.getExtensionFilters().add(extFilt);
+
+            File file = fileChooser.showSaveDialog(primaryStage);
+
+            if (file != null) {
+                try {
+                    WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                    canvas.snapshot(null, writableImage);
+
+                    RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+                    ImageIO.write(renderedImage, "png", file);
+
+                } catch (IOException e) {
+                    System.out.println("File output error");
+                }
+            }
+        });
+
+        hbox.getChildren().addAll(colorPicker, comboboxNastroje, buttonClear, spinnerSirkaCary, buttonUloz, buttonNacti);
         root.setCenter(pane);
         root.setTop(hbox);
 
