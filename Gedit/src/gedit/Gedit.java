@@ -52,6 +52,8 @@ public class Gedit extends Application {
     Spinner<Integer> spinnerSirkaCary = new Spinner<>();
     Pane pane = new Pane();
     ObservableList<Rectangle> listRect = FXCollections.observableArrayList();
+    Button buttonUloz = new Button("Ulož");
+    Button buttonNacti = new Button("Načti");
 
     @Override
     public void start(Stage primaryStage) {
@@ -78,6 +80,35 @@ public class Gedit extends Application {
 
         buttonClear.setOnAction((event) -> {
             clearAll();
+        });
+        
+        buttonNacti.setOnAction((event) -> {
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        });
+        
+        buttonUloz.setOnAction((event) -> {
+        
         });
 
         hbox.getChildren().addAll(colorPicker, comboboxNastroje, buttonClear, spinnerSirkaCary);
