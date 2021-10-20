@@ -1,8 +1,11 @@
 package gedit;
 
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.beans.value.ChangeListener;
@@ -23,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.image.Image;
+
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -90,46 +94,52 @@ public class Gedit extends Application {
             fileChooser.getExtensionFilters().add(extFilt);
 
             File file = fileChooser.showOpenDialog(primaryStage);
-            if (file != null) {
-                Image image = new Image(file.getAbsolutePath());
-                gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
-            }
-            
+            Image image = new Image(file.toURI().toString());
+
+            gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
         });
 
-        buttonUloz.setOnAction((event) -> {
-            FileChooser fileChooser = new FileChooser();
+        buttonUloz.setOnAction(
+                (event) -> {
+                    FileChooser fileChooser = new FileChooser();
 
-            FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png");
-            fileChooser.getExtensionFilters().add(extFilt);
+                    FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png");
+                    fileChooser.getExtensionFilters().add(extFilt);
 
-            File file = fileChooser.showSaveDialog(primaryStage);
+                    File file = fileChooser.showSaveDialog(primaryStage);
 
-            if (file != null) {
-                try {
-                    WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
-                    canvas.snapshot(null, writableImage);
+                    if (file != null) {
+                        try {
+                            WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                            canvas.snapshot(null, writableImage);
 
-                    RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
-                    ImageIO.write(renderedImage, "png", file);
+                            RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+                            ImageIO.write(renderedImage, "png", file);
 
-                } catch (IOException e) {
-                    System.out.println("File output error");
+                        } catch (IOException e) {
+                            System.out.println("File output error");
+                        }
+                    }
                 }
-            }
-        });
+        );
 
-        hbox.getChildren().addAll(colorPicker, comboboxNastroje, buttonClear, spinnerSirkaCary, buttonUloz, buttonNacti);
+        hbox.getChildren()
+                .addAll(colorPicker, comboboxNastroje, buttonClear, spinnerSirkaCary, buttonUloz, buttonNacti);
         root.setCenter(pane);
+
         root.setTop(hbox);
 
-        canvas.widthProperty().bind(root.widthProperty());
-        canvas.heightProperty().bind(root.heightProperty());
+        canvas.widthProperty()
+                .bind(root.widthProperty());
+        canvas.heightProperty()
+                .bind(root.heightProperty());
 
         Scene scene = new Scene(root, 800, 600);
 
-        primaryStage.setTitle("G-Edit 3000");
+        primaryStage.setTitle(
+                "G-Edit 3000");
         primaryStage.setScene(scene);
+
         primaryStage.show();
     }
 
