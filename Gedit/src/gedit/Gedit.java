@@ -1,20 +1,15 @@
 package gedit;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -22,15 +17,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.image.Image;
-
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -46,6 +37,7 @@ public class Gedit extends Application {
     Point2D lineStart = null;
     Point2D rectStart = null;
     Point2D rectEnd = null;
+    Scene scene;
 
     private Color currColor = Color.RED;
     BorderPane root = new BorderPane();
@@ -88,15 +80,27 @@ public class Gedit extends Application {
         });
 
         buttonNacti.setOnAction((event) -> {
+
             FileChooser fileChooser = new FileChooser();
 
             FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png");
             fileChooser.getExtensionFilters().add(extFilt);
-
+            primaryStage.setWidth(1600);
+            primaryStage.setHeight(1200);
             File file = fileChooser.showOpenDialog(primaryStage);
+
             Image image = new Image(file.toURI().toString());
 
-            gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
+            if (!(image.getWidth() <= 500 || image.getHeight() <= 250 || image.getWidth() >= 1600 || image.getHeight() >= 1200)) {
+                newCanvas(primaryStage, image.getWidth(), image.getHeight());
+                gc.drawImage(image, 0, 0, image.getWidth(), image.getHeight());
+            } else if (image.getWidth() > 1600 || image.getHeight() > 1200) {
+                newCanvas(primaryStage, image.getWidth() / 2, image.getHeight() / 2);
+                gc.drawImage(image, 0, 0, image.getWidth() / 2, image.getHeight() / 2);
+            } else if ((image.getWidth() < 500 || image.getHeight() < 250)) {
+                newCanvas(primaryStage, 500, 250);
+                gc.drawImage(image, 0, 0, 500, 250);
+            }
         });
 
         buttonUloz.setOnAction(
@@ -134,13 +138,29 @@ public class Gedit extends Application {
         canvas.heightProperty()
                 .bind(root.heightProperty());
 
-        Scene scene = new Scene(root, 800, 600);
+        scene = new Scene(root, 800, 600);
 
         primaryStage.setTitle(
                 "G-Edit 3000");
         primaryStage.setScene(scene);
 
         primaryStage.show();
+    }
+
+    private void newCanvas(Stage primaryStage, double width, double height) {
+        if (canvas != null) {
+            canvas = new Canvas(width, height);
+
+            root.setPrefSize(width, height + 30);
+            scene.setRoot(root);
+            root.setCenter(pane);
+            pane.getChildren().add(canvas);
+            root.setTop(hbox);
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            primaryStage.setWidth(width + 10);
+            primaryStage.setHeight(height + 60);
+            clearAll();
+        }
     }
 
     public static void main(String[] args) {
