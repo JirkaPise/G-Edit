@@ -54,7 +54,7 @@ public class Gedit extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("ikona.png")));
         canvas = new Canvas();
         gc = canvas.getGraphicsContext2D();
         pane.getChildren().add(canvas);
