@@ -4,7 +4,8 @@ public enum enumNastroj {
     TUZKA("Tužka"),
     OBDELNIK("Obdelník"),
     KRUH("Kruh"),
-    GUMA("Guma");
+    GUMA("Guma"),
+    ORIZNOUT("Oříznout");
 
     private String jmeno;
 

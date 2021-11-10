@@ -11,7 +11,9 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -186,6 +188,9 @@ public class Gedit extends Application {
                             gc.setFill(currColor);
                             rectStart = new Point2D(event.getX(), event.getY());
                             break;
+                        case ORIZNOUT:
+                            rectStart = new Point2D(event.getX(), event.getY());
+                            break;
                         default:
                             break;
                     }
@@ -214,6 +219,9 @@ public class Gedit extends Application {
                         case KRUH:
 
                             break;
+
+                        case ORIZNOUT:
+                            break;
                         default:
                             break;
                     }
@@ -238,6 +246,16 @@ public class Gedit extends Application {
                         case KRUH:
                             gc.setFill(currColor);
                             gc.fillOval(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
+                            break;
+                        case ORIZNOUT:
+                            WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                            SnapshotParameters params = new SnapshotParameters();
+                            params.setViewport(new Rectangle2D(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY()));
+                            canvas.snapshot(params, writableImage);
+                            gc.setFill(Color.WHITESMOKE);
+                            gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                            gc.drawImage(writableImage, 0, 0);
+
                             break;
                         default:
                             break;
