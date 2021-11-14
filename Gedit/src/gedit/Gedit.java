@@ -23,12 +23,15 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -52,6 +55,7 @@ public class Gedit extends Application {
     Spinner<Integer> spinnerSirkaCary = new Spinner<>();
     Pane pane = new Pane();
     ObservableList<Rectangle> listRect = FXCollections.observableArrayList();
+    ObservableList<Circle> listCirc = FXCollections.observableArrayList();
     Button buttonUloz = new Button("Ulož");
     Button buttonNacti = new Button("Načti");
 
@@ -66,7 +70,7 @@ public class Gedit extends Application {
         SpinnerValueFactory valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 2);
         spinnerSirkaCary.setValueFactory(valueFactory);
         initt();
-        
+
         colorPicker.setOnAction((ActionEvent event) -> {
             currColor = colorPicker.getValue();
         });
@@ -179,72 +183,87 @@ public class Gedit extends Application {
     private void draw() {
         if (canvas != null) {
             canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent event) -> {
-                if (null != comboboxNastroje.getValue()) {
-                    switch (comboboxNastroje.getValue()) {
-                        case TUZKA:
-                            gc.setStroke(currColor);
-                            gc.setLineWidth(spinnerSirkaCary.getValue());
-                            lineStart = new Point2D(event.getX(), event.getY());
-                            break;
-                        case GUMA:
-                            gc.setStroke(Color.WHITESMOKE);
-                            lineStart = new Point2D(event.getX(), event.getY());
-                            break;
-                        case OBDELNIK:
-                        case KRUH:
-                            gc.setFill(currColor);
-                            rectStart = new Point2D(event.getX(), event.getY());
-                            break;
-                        case ORIZNOUT:
-                            rectStart = new Point2D(event.getX(), event.getY());
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                if (event.getButton() == MouseButton.PRIMARY) {
 
+                    if (null != comboboxNastroje.getValue()) {
+                        switch (comboboxNastroje.getValue()) {
+                            case TUZKA:
+                                gc.setStroke(currColor);
+                                gc.setLineWidth(spinnerSirkaCary.getValue());
+                                lineStart = new Point2D(event.getX(), event.getY());
+                                break;
+                            case GUMA:
+                                gc.setStroke(Color.WHITESMOKE);
+                                lineStart = new Point2D(event.getX(), event.getY());
+                                break;
+                            case OBDELNIK:
+                            case KRUH:
+                                gc.setFill(currColor);
+                                rectStart = new Point2D(event.getX(), event.getY());
+                                break;
+                            case ORIZNOUT:
+                                rectStart = new Point2D(event.getX(), event.getY());
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                } else {
+                    WritableImage writableImage = new WritableImage((int)canvas.getWidth(),(int)canvas.getHeight());
+                    SnapshotParameters params = new SnapshotParameters();
+                    PixelReader pr = writableImage.getPixelReader();
+                    params.setViewport(new Rectangle2D(0, 0, 1, 1));
+                    canvas.snapshot(params, writableImage);
+                    colorPicker.setValue(pr.getColor((int) event.getX(), (int) event.getY()));
+                }
             });
 
             canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent event) -> {
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (null != comboboxNastroje.getValue()) {
+                        switch (comboboxNastroje.getValue()) {
+                            case TUZKA:
+                                gc.strokeLine(lineStart.getX(), lineStart.getY(), event.getX(), event.getY());
+                                gc.setLineWidth(spinnerSirkaCary.getValue());
+                                lineStart = new Point2D(event.getX(), event.getY());
+                                break;
+                            case GUMA:
+                                gc.strokeLine(lineStart.getX(), lineStart.getY(), event.getX(), event.getY());
+                                gc.setLineWidth(spinnerSirkaCary.getValue() * 3
+                                );
+                                lineStart = new Point2D(event.getX(), event.getY());
+                                break;
+                            case OBDELNIK:
+                                pane.getChildren().removeAll(listRect);
+                                listRect.clear();
+                                Rectangle rect1 = new Rectangle(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
+                                rect1.setFill(currColor);
+                                listRect.add(rect1);
+                                pane.getChildren().addAll(listRect);
 
-                if (null != comboboxNastroje.getValue()) {
-                    switch (comboboxNastroje.getValue()) {
-                        case TUZKA:
-                            gc.strokeLine(lineStart.getX(), lineStart.getY(), event.getX(), event.getY());
-                            gc.setLineWidth(spinnerSirkaCary.getValue());
-                            lineStart = new Point2D(event.getX(), event.getY());
-                            break;
-                        case GUMA:
-                            gc.strokeLine(lineStart.getX(), lineStart.getY(), event.getX(), event.getY());
-                            gc.setLineWidth(spinnerSirkaCary.getValue() * 3
-                            );
-                            lineStart = new Point2D(event.getX(), event.getY());
-                            break;
-                        case OBDELNIK:
-                            pane.getChildren().removeAll(listRect);
-                            listRect.clear();
-                            Rectangle rect1 = new Rectangle(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
-                            rect1.setFill(currColor);
-                            listRect.add(rect1);
-                            pane.getChildren().addAll(listRect);
+                                break;
+                            case KRUH:
+//                            pane.getChildren().removeAll(listCirc);
+//                            listCirc.clear();
+//                            Circle circ = new Circle(rectStart.getX(), rectStart.getY(), (rectStart.distance(event.getX(), event.getY())));
+//                            circ.setFill(currColor);
+//                            listCirc.add(circ);
+//                            pane.getChildren().addAll(listCirc);
+                                break;
 
-                            break;
-                        case KRUH:
+                            case ORIZNOUT:
+                                pane.getChildren().removeAll(listRect);
+                                listRect.clear();
+                                Rectangle rect = new Rectangle(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
+                                rect.setFill(null);
+                                rect.setStroke(Color.DIMGREY);
+                                listRect.add(rect);
+                                pane.getChildren().addAll(listRect);
 
-                            break;
-
-                        case ORIZNOUT:
-                            pane.getChildren().removeAll(listRect);
-                            listRect.clear();
-                            Rectangle rect = new Rectangle(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
-                            rect.setFill(null);
-                            rect.setStroke(Color.DIMGREY);
-                            listRect.add(rect);
-                            pane.getChildren().addAll(listRect);
-
-                            break;
-                        default:
-                            break;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
 
@@ -254,32 +273,34 @@ public class Gedit extends Application {
                 rectEnd = null;
                 pane.getChildren().clear();
                 pane.getChildren().add(canvas);
-                if (null != comboboxNastroje.getValue()) {
-                    switch (comboboxNastroje.getValue()) {
-                        case TUZKA:
-                            break;
-                        case GUMA:
-                            break;
-                        case OBDELNIK:
-                            gc.setFill(currColor);
-                            gc.fillRect(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
-                            break;
-                        case KRUH:
-                            gc.setFill(currColor);
-                            gc.fillOval(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
-                            break;
-                        case ORIZNOUT:
-                            WritableImage writableImage = new WritableImage((int) (event.getX() - rectStart.getX()), (int) (event.getY() - rectStart.getY()));
-                            SnapshotParameters params = new SnapshotParameters();
-                            params.setViewport(new Rectangle2D(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY()));
-                            canvas.snapshot(params, writableImage);
-                            gc.setFill(Color.WHITE);
-                            gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                            gc.drawImage(writableImage, rectStart.getX(), rectStart.getY());
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (null != comboboxNastroje.getValue()) {
+                        switch (comboboxNastroje.getValue()) {
+                            case TUZKA:
+                                break;
+                            case GUMA:
+                                break;
+                            case OBDELNIK:
+                                gc.setFill(currColor);
+                                gc.fillRect(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
+                                break;
+                            case KRUH:
+                                gc.setFill(currColor);
+                                gc.fillOval(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
+                                break;
+                            case ORIZNOUT:
+                                WritableImage writableImage = new WritableImage((int) (event.getX() - rectStart.getX()), (int) (event.getY() - rectStart.getY()));
+                                SnapshotParameters params = new SnapshotParameters();
+                                params.setViewport(new Rectangle2D(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY()));
+                                canvas.snapshot(params, writableImage);
+                                gc.setFill(Color.WHITE);
+                                gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                                gc.drawImage(writableImage, rectStart.getX(), rectStart.getY());
 
-                            break;
-                        default:
-                            break;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             });
@@ -298,19 +319,18 @@ public class Gedit extends Application {
 
     }
 
-    
-    private void initt(){
+    private void initt() {
         buttonNacti.setMaxSize(100, 50);
         buttonUloz.setMaxSize(100, 50);
         buttonClear.setMaxSize(100, 50);
         spinnerSirkaCary.setMaxSize(75, 50);
         colorPicker.setMaxSize(125, 50);
-        
+
         buttonClear.setMinSize(50, 0);
-        
+
         hbox.setPadding(new Insets(5));
         hbox.setSpacing(5);
-        
-        pane.setMinWidth(520);        
+
+        pane.setMinWidth(520);
     }
 }
