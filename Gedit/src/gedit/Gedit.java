@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -64,7 +65,8 @@ public class Gedit extends Application {
         comboboxNastroje.getSelectionModel().select(enumNastroj.TUZKA);
         SpinnerValueFactory valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 2);
         spinnerSirkaCary.setValueFactory(valueFactory);
-
+        initt();
+        
         colorPicker.setOnAction((ActionEvent event) -> {
             currColor = colorPicker.getValue();
         });
@@ -145,7 +147,7 @@ public class Gedit extends Application {
         primaryStage.setTitle(
                 "G-Edit 3000");
         primaryStage.setScene(scene);
-
+        clearAll();
         primaryStage.show();
     }
 
@@ -158,9 +160,14 @@ public class Gedit extends Application {
             root.setCenter(pane);
             pane.getChildren().add(canvas);
             root.setTop(hbox);
-            GraphicsContext gc = canvas.getGraphicsContext2D();
+            gc = canvas.getGraphicsContext2D();
             primaryStage.setWidth(width + 10);
             primaryStage.setHeight(height + 60);
+
+            canvas.widthProperty()
+                    .bind(root.widthProperty());
+            canvas.heightProperty()
+                    .bind(root.heightProperty());
             clearAll();
         }
     }
@@ -214,6 +221,12 @@ public class Gedit extends Application {
                             lineStart = new Point2D(event.getX(), event.getY());
                             break;
                         case OBDELNIK:
+                            pane.getChildren().removeAll(listRect);
+                            listRect.clear();
+                            Rectangle rect1 = new Rectangle(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
+                            rect1.setFill(currColor);
+                            listRect.add(rect1);
+                            pane.getChildren().addAll(listRect);
 
                             break;
                         case KRUH:
@@ -221,6 +234,14 @@ public class Gedit extends Application {
                             break;
 
                         case ORIZNOUT:
+                            pane.getChildren().removeAll(listRect);
+                            listRect.clear();
+                            Rectangle rect = new Rectangle(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
+                            rect.setFill(null);
+                            rect.setStroke(Color.DIMGREY);
+                            listRect.add(rect);
+                            pane.getChildren().addAll(listRect);
+
                             break;
                         default:
                             break;
@@ -248,13 +269,13 @@ public class Gedit extends Application {
                             gc.fillOval(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY());
                             break;
                         case ORIZNOUT:
-                            WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                            WritableImage writableImage = new WritableImage((int) (event.getX() - rectStart.getX()), (int) (event.getY() - rectStart.getY()));
                             SnapshotParameters params = new SnapshotParameters();
                             params.setViewport(new Rectangle2D(rectStart.getX(), rectStart.getY(), event.getX() - rectStart.getX(), event.getY() - rectStart.getY()));
                             canvas.snapshot(params, writableImage);
-                            gc.setFill(Color.WHITESMOKE);
+                            gc.setFill(Color.WHITE);
                             gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                            gc.drawImage(writableImage, 0, 0);
+                            gc.drawImage(writableImage, rectStart.getX(), rectStart.getY());
 
                             break;
                         default:
@@ -272,7 +293,24 @@ public class Gedit extends Application {
     }
 
     private void clearAll() {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.setFill(Color.WHITE);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
     }
 
+    
+    private void initt(){
+        buttonNacti.setMaxSize(100, 50);
+        buttonUloz.setMaxSize(100, 50);
+        buttonClear.setMaxSize(100, 50);
+        spinnerSirkaCary.setMaxSize(75, 50);
+        colorPicker.setMaxSize(125, 50);
+        
+        buttonClear.setMinSize(50, 0);
+        
+        hbox.setPadding(new Insets(5));
+        hbox.setSpacing(5);
+        
+        pane.setMinWidth(520);        
+    }
 }
