@@ -193,7 +193,7 @@ public class Gedit extends Application {
                                 lineStart = new Point2D(event.getX(), event.getY());
                                 break;
                             case GUMA:
-                                gc.setStroke(Color.WHITESMOKE);
+                                gc.setStroke(Color.WHITE);
                                 lineStart = new Point2D(event.getX(), event.getY());
                                 break;
                             case OBDELNIK:
@@ -215,6 +215,7 @@ public class Gedit extends Application {
                     params.setViewport(new Rectangle2D(0, 0, 1, 1));
                     canvas.snapshot(params, writableImage);
                     colorPicker.setValue(pr.getColor((int) event.getX(), (int) event.getY()));
+                    currColor = colorPicker.getValue();
                 }
             });
 
