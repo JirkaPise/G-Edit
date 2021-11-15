@@ -3,6 +3,7 @@ package gedit;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Observable;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.beans.value.ObservableValue;
@@ -20,11 +21,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -58,6 +61,8 @@ public class Gedit extends Application {
     ObservableList<Circle> listCirc = FXCollections.observableArrayList();
     Button buttonUloz = new Button("Ulož");
     Button buttonNacti = new Button("Načti");
+    Label labelPointer = new Label("0:0");
+    ObservableList<WritableImage> listKrokuZpet = FXCollections.observableArrayList();
 
     @Override
     public void start(Stage primaryStage) {
@@ -135,8 +140,12 @@ public class Gedit extends Application {
                 }
         );
 
+        canvas.addEventHandler(MouseEvent.MOUSE_MOVED, (event) -> {
+            labelPointer.setText((int) event.getX() + ":" + (int) event.getY());
+        });
+
         hbox.getChildren()
-                .addAll(colorPicker, comboboxNastroje, buttonClear, spinnerSirkaCary, buttonUloz, buttonNacti);
+                .addAll(colorPicker, comboboxNastroje, buttonClear, spinnerSirkaCary, buttonUloz, buttonNacti, labelPointer);
         root.setCenter(pane);
 
         root.setTop(hbox);
@@ -147,6 +156,20 @@ public class Gedit extends Application {
                 .bind(root.heightProperty());
 
         scene = new Scene(root, 800, 600);
+
+        scene.setOnKeyPressed((event) -> {
+            if (event.isControlDown() && event.getCode() == KeyCode.Z) {
+                if (!listKrokuZpet.isEmpty()) {
+                    WritableImage wi = listKrokuZpet.get(listKrokuZpet.size() - 1);
+                    gc.drawImage(wi, 0, 0, wi.getWidth(), wi.getHeight());
+                    listKrokuZpet.remove(wi);
+                    listKrokuZpet.remove(listKrokuZpet.size() - 1); 
+                    //nevim proč, ale Mouse pressed se volá dvakrát
+                    //proto mažu dvakrát ten obrázek
+
+                }
+            }
+        });
 
         primaryStage.setTitle(
                 "G-Edit 3000");
@@ -183,7 +206,12 @@ public class Gedit extends Application {
     private void draw() {
         if (canvas != null) {
             canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent event) -> {
+
                 if (event.getButton() == MouseButton.PRIMARY) {
+
+                    WritableImage wi = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                    canvas.snapshot(null, wi);
+                    listKrokuZpet.add(wi);
 
                     if (null != comboboxNastroje.getValue()) {
                         switch (comboboxNastroje.getValue()) {
@@ -209,7 +237,7 @@ public class Gedit extends Application {
                         }
                     }
                 } else {
-                    WritableImage writableImage = new WritableImage((int)canvas.getWidth(),(int)canvas.getHeight());
+                    WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
                     SnapshotParameters params = new SnapshotParameters();
                     PixelReader pr = writableImage.getPixelReader();
                     params.setViewport(new Rectangle2D(0, 0, 1, 1));
@@ -220,6 +248,7 @@ public class Gedit extends Application {
             });
 
             canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, (MouseEvent event) -> {
+                labelPointer.setText((int) event.getX() + ":" + (int) event.getY());
                 if (event.getButton() == MouseButton.PRIMARY) {
                     if (null != comboboxNastroje.getValue()) {
                         switch (comboboxNastroje.getValue()) {
@@ -275,6 +304,7 @@ public class Gedit extends Application {
                 pane.getChildren().clear();
                 pane.getChildren().add(canvas);
                 if (event.getButton() == MouseButton.PRIMARY) {
+
                     if (null != comboboxNastroje.getValue()) {
                         switch (comboboxNastroje.getValue()) {
                             case TUZKA:
@@ -304,6 +334,7 @@ public class Gedit extends Application {
                         }
                     }
                 }
+
             });
 
             canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent event) -> {
@@ -332,6 +363,6 @@ public class Gedit extends Application {
         hbox.setPadding(new Insets(5));
         hbox.setSpacing(5);
 
-        pane.setMinWidth(520);
+        pane.setMinWidth(575);
     }
 }
