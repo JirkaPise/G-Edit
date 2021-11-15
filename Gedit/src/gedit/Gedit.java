@@ -11,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -39,6 +40,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
+import seznam.AbstrDoubleList;
 
 public class Gedit extends Application {
 
@@ -53,6 +55,8 @@ public class Gedit extends Application {
     HBox hbox = new HBox();
     ColorPicker colorPicker = new ColorPicker(currColor);
     GraphicsContext gc;
+    int pocet = 0;
+    boolean jePosledni = true;
     ComboBox<enumNastroj> comboboxNastroje = new ComboBox<>();
     Button buttonClear = new Button("Clear");
     Spinner<Integer> spinnerSirkaCary = new Spinner<>();
@@ -62,7 +66,7 @@ public class Gedit extends Application {
     Button buttonUloz = new Button("Ulož");
     Button buttonNacti = new Button("Načti");
     Label labelPointer = new Label("0:0");
-    ObservableList<WritableImage> listKrokuZpet = FXCollections.observableArrayList();
+    AbstrDoubleList<WritableImage> listKrokuZpet = new AbstrDoubleList<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -159,14 +163,39 @@ public class Gedit extends Application {
 
         scene.setOnKeyPressed((event) -> {
             if (event.isControlDown() && event.getCode() == KeyCode.Z) {
-                if (!listKrokuZpet.isEmpty()) {
-                    WritableImage wi = listKrokuZpet.get(listKrokuZpet.size() - 1);
-                    gc.drawImage(wi, 0, 0, wi.getWidth(), wi.getHeight());
-                    listKrokuZpet.remove(wi);
-                    listKrokuZpet.remove(listKrokuZpet.size() - 1); 
-                    //nevim proč, ale Mouse pressed se volá dvakrát
-                    //proto mažu dvakrát ten obrázek
+                if (!listKrokuZpet.jePrazdny()) {
+                    try {
+                        WritableImage wi;
+                        if (jePosledni) {
+                            wi = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                            canvas.snapshot(null, wi);
+                            listKrokuZpet.vlozPosledni(wi);
+                            listKrokuZpet.zpristupniPredchudce();
+                            jePosledni = false;
+                        }
+                        wi = listKrokuZpet.zpristupniAktualni();
+                        gc.drawImage(wi, 0, 0, wi.getWidth(), wi.getHeight());
+                        listKrokuZpet.zpristupniPredchudce();
 
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
+                }
+            }
+
+            if (event.isControlDown() && event.getCode() == KeyCode.Y) {
+                if (!listKrokuZpet.jePrazdny()) {
+                    try {
+                        if (jePosledni) {
+                            listKrokuZpet.odeberPosledni();
+                            jePosledni = false;
+                        }
+                        listKrokuZpet.zpristupniNaslednika();
+                        WritableImage wi = listKrokuZpet.zpristupniAktualni();
+                        gc.drawImage(wi, 0, 0, wi.getWidth(), wi.getHeight());
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
                 }
             }
         });
@@ -204,14 +233,19 @@ public class Gedit extends Application {
     }
 
     private void draw() {
+
         if (canvas != null) {
+
             canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (MouseEvent event) -> {
 
                 if (event.getButton() == MouseButton.PRIMARY) {
 
-                    WritableImage wi = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
-                    canvas.snapshot(null, wi);
-                    listKrokuZpet.add(wi);
+                    pocet++;
+                    if (pocet % 2 == 0) {
+                        WritableImage wi = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+                        canvas.snapshot(null, wi);
+                        listKrokuZpet.vlozPosledni(wi);
+                    }
 
                     if (null != comboboxNastroje.getValue()) {
                         switch (comboboxNastroje.getValue()) {
@@ -333,6 +367,7 @@ public class Gedit extends Application {
                                 break;
                         }
                     }
+
                 }
 
             });
