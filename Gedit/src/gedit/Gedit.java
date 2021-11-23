@@ -70,7 +70,6 @@ public class Gedit extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        System.out.println("git jede");
         primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("ikona.png")));
         canvas = new Canvas();
         gc = canvas.getGraphicsContext2D();
