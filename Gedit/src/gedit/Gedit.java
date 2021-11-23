@@ -100,7 +100,7 @@ public class Gedit extends Application {
 
             FileChooser fileChooser = new FileChooser();
 
-            FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png");
+            FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png", "*.*");
             fileChooser.getExtensionFilters().add(extFilt);
             primaryStage.setWidth(1600);
             primaryStage.setHeight(1200);
@@ -124,7 +124,7 @@ public class Gedit extends Application {
                 (event) -> {
                     FileChooser fileChooser = new FileChooser();
 
-                    FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png");
+                    FileChooser.ExtensionFilter extFilt = new FileChooser.ExtensionFilter("png files", "*.png", "*.*");
                     fileChooser.getExtensionFilters().add(extFilt);
 
                     File file = fileChooser.showSaveDialog(primaryStage);
