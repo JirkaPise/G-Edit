@@ -50,8 +50,6 @@ public class Gedit extends Application {
     Point2D rectEnd = null;
     Scene scene;
 
-    // Petr J. push :)
-    
     private Color currColor = Color.RED;
     BorderPane root = new BorderPane();
     HBox hbox = new HBox();
